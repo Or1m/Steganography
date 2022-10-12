@@ -42,6 +42,9 @@ namespace Steganography
             this.UnhideTextButt = new System.Windows.Forms.Button();
             this.HideFileButt = new System.Windows.Forms.Button();
             this.HiideTextButt = new System.Windows.Forms.Button();
+            this.SaveButt = new System.Windows.Forms.Button();
+            this.FileNameBox = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewPictureBox)).BeginInit();
             this.MainGroupBox.SuspendLayout();
             this.SuspendLayout();
@@ -58,6 +61,9 @@ namespace Steganography
             // 
             // MainGroupBox
             // 
+            this.MainGroupBox.Controls.Add(this.label4);
+            this.MainGroupBox.Controls.Add(this.FileNameBox);
+            this.MainGroupBox.Controls.Add(this.SaveButt);
             this.MainGroupBox.Controls.Add(this.label3);
             this.MainGroupBox.Controls.Add(this.RichTextBox);
             this.MainGroupBox.Controls.Add(this.BitLabel);
@@ -77,7 +83,7 @@ namespace Steganography
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 152);
+            this.label3.Location = new System.Drawing.Point(3, 141);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(31, 13);
             this.label3.TabIndex = 9;
@@ -86,7 +92,7 @@ namespace Steganography
             // RichTextBox
             // 
             this.RichTextBox.Enabled = false;
-            this.RichTextBox.Location = new System.Drawing.Point(6, 168);
+            this.RichTextBox.Location = new System.Drawing.Point(6, 157);
             this.RichTextBox.Name = "RichTextBox";
             this.RichTextBox.Size = new System.Drawing.Size(262, 62);
             this.RichTextBox.TabIndex = 8;
@@ -96,7 +102,7 @@ namespace Steganography
             // BitLabel
             // 
             this.BitLabel.AutoSize = true;
-            this.BitLabel.Location = new System.Drawing.Point(84, 279);
+            this.BitLabel.Location = new System.Drawing.Point(84, 253);
             this.BitLabel.Name = "BitLabel";
             this.BitLabel.Size = new System.Drawing.Size(16, 13);
             this.BitLabel.TabIndex = 7;
@@ -105,7 +111,7 @@ namespace Steganography
             // SizeLabel
             // 
             this.SizeLabel.AutoSize = true;
-            this.SizeLabel.Location = new System.Drawing.Point(84, 257);
+            this.SizeLabel.Location = new System.Drawing.Point(84, 231);
             this.SizeLabel.Name = "SizeLabel";
             this.SizeLabel.Size = new System.Drawing.Size(16, 13);
             this.SizeLabel.TabIndex = 6;
@@ -114,7 +120,7 @@ namespace Steganography
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 279);
+            this.label2.Location = new System.Drawing.Point(3, 253);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(72, 13);
             this.label2.TabIndex = 5;
@@ -123,7 +129,7 @@ namespace Steganography
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 257);
+            this.label1.Location = new System.Drawing.Point(3, 231);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(60, 13);
             this.label1.TabIndex = 4;
@@ -172,6 +178,34 @@ namespace Steganography
             this.HiideTextButt.TabIndex = 0;
             this.HiideTextButt.Text = "Hide text";
             this.HiideTextButt.UseVisualStyleBackColor = true;
+            this.HiideTextButt.Click += new System.EventHandler(this.HiideTextButt_Click);
+            // 
+            // SaveButt
+            // 
+            this.SaveButt.Location = new System.Drawing.Point(193, 275);
+            this.SaveButt.Name = "SaveButt";
+            this.SaveButt.Size = new System.Drawing.Size(75, 23);
+            this.SaveButt.TabIndex = 10;
+            this.SaveButt.Text = "Save";
+            this.SaveButt.UseVisualStyleBackColor = true;
+            this.SaveButt.Click += new System.EventHandler(this.SaveButt_Click);
+            // 
+            // FileNameBox
+            // 
+            this.FileNameBox.Location = new System.Drawing.Point(87, 277);
+            this.FileNameBox.Name = "FileNameBox";
+            this.FileNameBox.Size = new System.Drawing.Size(100, 20);
+            this.FileNameBox.TabIndex = 11;
+            this.FileNameBox.Text = "output.png";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(3, 280);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(55, 13);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "File name:";
             // 
             // MainForm
             // 
@@ -208,6 +242,9 @@ namespace Steganography
         private System.Windows.Forms.Label SizeLabel;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.RichTextBox RichTextBox;
+        private System.Windows.Forms.Button SaveButt;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox FileNameBox;
     }
 }
 

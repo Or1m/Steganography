@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 
@@ -9,10 +10,10 @@ namespace Steganography
     public partial class MainForm : Form
     {
         private const int numOfChannels = 3; // RGB only
-        private const int charBits = 7; // ASCII
-
+        private const int charBits = 8; // ASCII
         private readonly List<string> allowedImageExtenxsions = new List<string>() { ".jpg", ".png" };
-        
+
+        private ISteganography steganography;
         private Bitmap targetImage;
         private int availableBits;
 
@@ -41,10 +42,6 @@ namespace Steganography
 
             ShowInfo();
             EnableGroup(MainGroupBox);
-
-            Console.WriteLine(Convert.ToString((byte)'A', 2));
-
-            // Create Instance of sth and add image to it
         }
         
         private void RichTextBox_TextChanged(object sender, EventArgs e)
@@ -56,6 +53,19 @@ namespace Steganography
                 BitLabel.ForeColor = Color.Red;
             else
                 BitLabel.ForeColor = Color.Black;
+        }
+
+        private void HiideTextButt_Click(object sender, EventArgs e)
+        {
+            steganography = new TextSteganography();
+            steganography.Hide(targetImage, RichTextBox.Text);
+
+            MessageBox.Show("Text successfully added to image");
+        }
+        private void SaveButt_Click(object sender, EventArgs e)
+        {
+            targetImage.Save(FileNameBox.Text, ImageFormat.Png);
+            MessageBox.Show("Saved");
         }
         #endregion
 

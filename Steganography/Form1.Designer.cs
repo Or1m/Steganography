@@ -156,6 +156,7 @@ namespace Steganography
             this.UnhideTextButt.TabIndex = 2;
             this.UnhideTextButt.Text = "Unhide text";
             this.UnhideTextButt.UseVisualStyleBackColor = true;
+            this.UnhideTextButt.Click += new System.EventHandler(this.UnhideTextButt_Click);
             // 
             // HideFileButt
             // 

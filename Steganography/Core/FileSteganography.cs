@@ -9,7 +9,7 @@ namespace Steganography
             throw new System.NotImplementedException();
         }
 
-        public string UnHide(Bitmap image, out byte[] bytes)
+        public string Reveal(Bitmap image, out byte[] bytes, int numOfChannels = 3)
         {
             throw new System.NotImplementedException();
         }

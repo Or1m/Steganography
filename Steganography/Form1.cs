@@ -62,6 +62,13 @@ namespace Steganography
 
             MessageBox.Show("Text successfully added to image");
         }
+        private void UnhideTextButt_Click(object sender, EventArgs e)
+        {
+            steganography = new TextSteganography();
+            var revealedText = steganography.Reveal(targetImage, out _);
+            Console.WriteLine(revealedText);
+        }
+        
         private void SaveButt_Click(object sender, EventArgs e)
         {
             targetImage.Save(FileNameBox.Text, ImageFormat.Png);

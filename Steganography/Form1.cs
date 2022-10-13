@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Steganography.Core;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -9,8 +11,9 @@ namespace Steganography
 {
     public partial class MainForm : Form
     {
-        private const int numOfChannels = 3; // RGB only
-        private const int charBits = 8; // ASCII
+        private const int bitsPerPixel = 3; // RGB
+        private const int bitsPerChar = 8; // ASCII
+        private const int headerSize = 32;
         private readonly List<string> allowedImageExtenxsions = new List<string>() { ".jpg", ".png" };
 
         private ISteganography steganography;
@@ -23,6 +26,9 @@ namespace Steganography
         }
 
         #region UI Events
+        /// <summary>
+        /// Copy dragged image and save it to field targetImage if valid
+        /// </summary>
         private void MainForm_DragEnter(object sender, DragEventArgs e)
         {
             if (HasValidPath(e, out string path))
@@ -33,6 +39,9 @@ namespace Steganography
             else
                 e.Effect = DragDropEffects.None;
         }
+        /// <summary>
+        /// Show image, it's info like pixel count etc., enable controls
+        /// </summary>
         private void MainForm_DragDrop(object sender, DragEventArgs e)
         {
             if (targetImage == null)
@@ -43,10 +52,12 @@ namespace Steganography
             ShowInfo();
             EnableGroup(MainGroupBox);
         }
-        
+        /// <summary>
+        /// Actualize count of available bits to save and show it to user as he types
+        /// </summary>
         private void RichTextBox_TextChanged(object sender, EventArgs e)
         {
-            var currnet = availableBits - (RichTextBox.Text.Length * charBits);
+            var currnet = availableBits - (RichTextBox.Text.Length * bitsPerChar);
             BitLabel.Text = currnet.ToString();
 
             if (currnet < 0)
@@ -55,28 +66,45 @@ namespace Steganography
                 BitLabel.ForeColor = Color.Black;
         }
 
-        private void HiideTextButt_Click(object sender, EventArgs e)
+        private void HideTextButt_Click(object sender, EventArgs e)
         {
             steganography = new TextSteganography();
             steganography.Hide(targetImage, RichTextBox.Text);
 
             MessageBox.Show("Text successfully added to image");
         }
-        private void UnhideTextButt_Click(object sender, EventArgs e)
+        private void RevealTextButt_Click(object sender, EventArgs e)
         {
             steganography = new TextSteganography();
             var revealedText = steganography.Reveal(targetImage, out _);
+
             Console.WriteLine(revealedText);
         }
         
+        /// <summary>
+        /// Check if filename is valid, save image and open folder
+        /// </summary>
         private void SaveButt_Click(object sender, EventArgs e)
         {
+            var filename = FileNameBox.Text;
+
+            if (!filename.EndsWith(".png"))
+            {
+                MessageBox.Show("Invalid extension, only .png allowed");
+                return;
+            }
+
             targetImage.Save(FileNameBox.Text, ImageFormat.Png);
+            
             MessageBox.Show("Saved");
+            Process.Start(Application.StartupPath);
         }
         #endregion
 
         #region Helpers
+        /// <summary>
+        /// Validate dropped file
+        /// </summary>
         private bool HasValidPath(DragEventArgs e, out string filePath)
         {
             filePath = string.Empty;
@@ -98,6 +126,9 @@ namespace Steganography
 
             return false;
         }
+        /// <summary>
+        /// Check if extenstion belongs to allowedImageExtenxsions
+        /// </summary>
         private bool HasValidExtension(string filePath)
         {
             return allowedImageExtenxsions.Contains(Path.GetExtension(filePath).ToLower());
@@ -106,7 +137,7 @@ namespace Steganography
         {
             var size = targetImage.Size;
             var pixelCount = size.Width * size.Height;
-            availableBits = pixelCount * numOfChannels;
+            availableBits = (pixelCount * bitsPerPixel) - headerSize;
 
             SizeLabel.Text = $"W={size.Width}, H={size.Height} (WxH={pixelCount})";
             BitLabel.Text = availableBits.ToString();
@@ -114,11 +145,14 @@ namespace Steganography
         private void EnableGroup(GroupBox group)
         {
             var controls = group.Controls;
+
             foreach (var control in controls)
             {
                 if (control is Button b)
                     b.Enabled = true;
-                else if (control is RichTextBox t)
+                else if (control is RichTextBox rt)
+                    rt.Enabled = true;
+                else if (control is TextBox t)
                     t.Enabled = true;
             }
         }

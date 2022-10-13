@@ -32,19 +32,19 @@ namespace Steganography
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.PreviewPictureBox = new System.Windows.Forms.PictureBox();
             this.MainGroupBox = new System.Windows.Forms.GroupBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.FileNameBox = new System.Windows.Forms.TextBox();
+            this.SaveButt = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.RichTextBox = new System.Windows.Forms.RichTextBox();
             this.BitLabel = new System.Windows.Forms.Label();
             this.SizeLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.UnhideFileButt = new System.Windows.Forms.Button();
-            this.UnhideTextButt = new System.Windows.Forms.Button();
+            this.RevealFileButt = new System.Windows.Forms.Button();
+            this.RevealTextButt = new System.Windows.Forms.Button();
             this.HideFileButt = new System.Windows.Forms.Button();
-            this.HiideTextButt = new System.Windows.Forms.Button();
-            this.SaveButt = new System.Windows.Forms.Button();
-            this.FileNameBox = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.HideTextButt = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewPictureBox)).BeginInit();
             this.MainGroupBox.SuspendLayout();
             this.SuspendLayout();
@@ -54,7 +54,7 @@ namespace Steganography
             this.PreviewPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("PreviewPictureBox.Image")));
             this.PreviewPictureBox.Location = new System.Drawing.Point(12, 12);
             this.PreviewPictureBox.Name = "PreviewPictureBox";
-            this.PreviewPictureBox.Size = new System.Drawing.Size(313, 297);
+            this.PreviewPictureBox.Size = new System.Drawing.Size(400, 400);
             this.PreviewPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.PreviewPictureBox.TabIndex = 0;
             this.PreviewPictureBox.TabStop = false;
@@ -70,15 +70,44 @@ namespace Steganography
             this.MainGroupBox.Controls.Add(this.SizeLabel);
             this.MainGroupBox.Controls.Add(this.label2);
             this.MainGroupBox.Controls.Add(this.label1);
-            this.MainGroupBox.Controls.Add(this.UnhideFileButt);
-            this.MainGroupBox.Controls.Add(this.UnhideTextButt);
+            this.MainGroupBox.Controls.Add(this.RevealFileButt);
+            this.MainGroupBox.Controls.Add(this.RevealTextButt);
             this.MainGroupBox.Controls.Add(this.HideFileButt);
-            this.MainGroupBox.Controls.Add(this.HiideTextButt);
-            this.MainGroupBox.Location = new System.Drawing.Point(338, 6);
+            this.MainGroupBox.Controls.Add(this.HideTextButt);
+            this.MainGroupBox.Location = new System.Drawing.Point(418, 12);
             this.MainGroupBox.Name = "MainGroupBox";
-            this.MainGroupBox.Size = new System.Drawing.Size(274, 304);
+            this.MainGroupBox.Size = new System.Drawing.Size(400, 400);
             this.MainGroupBox.TabIndex = 1;
             this.MainGroupBox.TabStop = false;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(3, 280);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(55, 13);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "File name:";
+            // 
+            // FileNameBox
+            // 
+            this.FileNameBox.Enabled = false;
+            this.FileNameBox.Location = new System.Drawing.Point(87, 277);
+            this.FileNameBox.Name = "FileNameBox";
+            this.FileNameBox.Size = new System.Drawing.Size(100, 20);
+            this.FileNameBox.TabIndex = 11;
+            this.FileNameBox.Text = "output.png";
+            // 
+            // SaveButt
+            // 
+            this.SaveButt.Enabled = false;
+            this.SaveButt.Location = new System.Drawing.Point(193, 275);
+            this.SaveButt.Name = "SaveButt";
+            this.SaveButt.Size = new System.Drawing.Size(75, 23);
+            this.SaveButt.TabIndex = 10;
+            this.SaveButt.Text = "Save";
+            this.SaveButt.UseVisualStyleBackColor = true;
+            this.SaveButt.Click += new System.EventHandler(this.SaveButt_Click);
             // 
             // label3
             // 
@@ -135,85 +164,58 @@ namespace Steganography
             this.label1.TabIndex = 4;
             this.label1.Text = "Image size:";
             // 
-            // UnhideFileButt
+            // RevealFileButt
             // 
-            this.UnhideFileButt.Enabled = false;
-            this.UnhideFileButt.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.UnhideFileButt.Location = new System.Drawing.Point(148, 82);
-            this.UnhideFileButt.Name = "UnhideFileButt";
-            this.UnhideFileButt.Size = new System.Drawing.Size(120, 50);
-            this.UnhideFileButt.TabIndex = 3;
-            this.UnhideFileButt.Text = "Unhide file";
-            this.UnhideFileButt.UseVisualStyleBackColor = true;
+            this.RevealFileButt.Enabled = false;
+            this.RevealFileButt.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.RevealFileButt.Location = new System.Drawing.Point(148, 82);
+            this.RevealFileButt.Name = "RevealFileButt";
+            this.RevealFileButt.Size = new System.Drawing.Size(120, 50);
+            this.RevealFileButt.TabIndex = 3;
+            this.RevealFileButt.Text = "Reveal file";
+            this.RevealFileButt.UseVisualStyleBackColor = true;
             // 
-            // UnhideTextButt
+            // RevealTextButt
             // 
-            this.UnhideTextButt.Enabled = false;
-            this.UnhideTextButt.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.UnhideTextButt.Location = new System.Drawing.Point(148, 19);
-            this.UnhideTextButt.Name = "UnhideTextButt";
-            this.UnhideTextButt.Size = new System.Drawing.Size(120, 50);
-            this.UnhideTextButt.TabIndex = 2;
-            this.UnhideTextButt.Text = "Unhide text";
-            this.UnhideTextButt.UseVisualStyleBackColor = true;
-            this.UnhideTextButt.Click += new System.EventHandler(this.UnhideTextButt_Click);
+            this.RevealTextButt.Enabled = false;
+            this.RevealTextButt.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.RevealTextButt.Location = new System.Drawing.Point(6, 82);
+            this.RevealTextButt.Name = "RevealTextButt";
+            this.RevealTextButt.Size = new System.Drawing.Size(120, 50);
+            this.RevealTextButt.TabIndex = 2;
+            this.RevealTextButt.Text = "Reveal text";
+            this.RevealTextButt.UseVisualStyleBackColor = true;
+            this.RevealTextButt.Click += new System.EventHandler(this.RevealTextButt_Click);
             // 
             // HideFileButt
             // 
             this.HideFileButt.Enabled = false;
             this.HideFileButt.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.HideFileButt.Location = new System.Drawing.Point(6, 82);
+            this.HideFileButt.Location = new System.Drawing.Point(148, 19);
             this.HideFileButt.Name = "HideFileButt";
             this.HideFileButt.Size = new System.Drawing.Size(120, 50);
             this.HideFileButt.TabIndex = 1;
             this.HideFileButt.Text = "Hide file";
             this.HideFileButt.UseVisualStyleBackColor = true;
             // 
-            // HiideTextButt
+            // HideTextButt
             // 
-            this.HiideTextButt.Enabled = false;
-            this.HiideTextButt.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.HiideTextButt.Location = new System.Drawing.Point(6, 19);
-            this.HiideTextButt.Name = "HiideTextButt";
-            this.HiideTextButt.Size = new System.Drawing.Size(120, 50);
-            this.HiideTextButt.TabIndex = 0;
-            this.HiideTextButt.Text = "Hide text";
-            this.HiideTextButt.UseVisualStyleBackColor = true;
-            this.HiideTextButt.Click += new System.EventHandler(this.HiideTextButt_Click);
-            // 
-            // SaveButt
-            // 
-            this.SaveButt.Location = new System.Drawing.Point(193, 275);
-            this.SaveButt.Name = "SaveButt";
-            this.SaveButt.Size = new System.Drawing.Size(75, 23);
-            this.SaveButt.TabIndex = 10;
-            this.SaveButt.Text = "Save";
-            this.SaveButt.UseVisualStyleBackColor = true;
-            this.SaveButt.Click += new System.EventHandler(this.SaveButt_Click);
-            // 
-            // FileNameBox
-            // 
-            this.FileNameBox.Location = new System.Drawing.Point(87, 277);
-            this.FileNameBox.Name = "FileNameBox";
-            this.FileNameBox.Size = new System.Drawing.Size(100, 20);
-            this.FileNameBox.TabIndex = 11;
-            this.FileNameBox.Text = "output.png";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 280);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(55, 13);
-            this.label4.TabIndex = 12;
-            this.label4.Text = "File name:";
+            this.HideTextButt.Enabled = false;
+            this.HideTextButt.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.HideTextButt.Location = new System.Drawing.Point(6, 19);
+            this.HideTextButt.Name = "HideTextButt";
+            this.HideTextButt.Size = new System.Drawing.Size(120, 50);
+            this.HideTextButt.TabIndex = 0;
+            this.HideTextButt.Text = "Hide text";
+            this.HideTextButt.UseVisualStyleBackColor = true;
+            this.HideTextButt.Click += new System.EventHandler(this.HideTextButt_Click);
             // 
             // MainForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(624, 321);
+            this.ClientSize = new System.Drawing.Size(832, 423);
             this.Controls.Add(this.MainGroupBox);
             this.Controls.Add(this.PreviewPictureBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -233,10 +235,10 @@ namespace Steganography
 
         private System.Windows.Forms.PictureBox PreviewPictureBox;
         private System.Windows.Forms.GroupBox MainGroupBox;
-        private System.Windows.Forms.Button UnhideTextButt;
+        private System.Windows.Forms.Button RevealTextButt;
         private System.Windows.Forms.Button HideFileButt;
-        private System.Windows.Forms.Button HiideTextButt;
-        private System.Windows.Forms.Button UnhideFileButt;
+        private System.Windows.Forms.Button HideTextButt;
+        private System.Windows.Forms.Button RevealFileButt;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label BitLabel;

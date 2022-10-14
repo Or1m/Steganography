@@ -1,0 +1,1 @@
+{"MsgType":0,"ValidPixelChannels":3,"StepX":1,"StepY":1,"FistX":0,"FirstY":0,"NumOfBits":32,"FileName":null}

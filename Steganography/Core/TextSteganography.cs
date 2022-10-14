@@ -1,16 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 
 namespace Steganography.Core
 {
     class TextSteganography : ISteganography
     {
-        public void Hide(Bitmap image, string param, int bitsPerPixel = 3)
+        private readonly Header header;
+        private readonly Bitmap image;
+
+        public TextSteganography(Header header, Bitmap image)
         {
-            var bits = param.ToBitArray(); // Custom extension method to transform string into BitArray instance
+            this.header = header;
+            this.image = image;
+        }
+        public TextSteganography(Bitmap image)
+        {
+            this.image = image;
+            this.header = Utils.ParseHeader(image);
+        }
+
+        public bool Hide(string param)
+        {
+            if (!param.ToBitArray(out var bits)) // Custom extension method to transform string into BitArray instance
+                return false;
+
             var bitsLength = bits.Length;
             var height = image.Height;
             var width = image.Width;
@@ -23,7 +37,7 @@ namespace Steganography.Core
                     var pixel = image.GetPixel(x, y);
                     int[] rgb = new int[] { pixel.R, pixel.G, pixel.B, pixel.A }; // Helper array initialized with all color components
                                                                                   // but only up to value of bitsPerPixel are used
-                    for (int i = 0; i < bitsPerPixel && iterator < bitsLength; i++)
+                    for (int i = 0; i < (byte)header.ValidPixelChannels && iterator < bitsLength; i++)
                     {
                         int mask = bits[iterator++] ? 255 : 254;
                         rgb[i] = rgb[i] & mask; // Set last bit to 0 or 1 by binary AND (&) based on value of bits[iterator++] 
@@ -34,15 +48,10 @@ namespace Steganography.Core
                 }
             }
 
-#if DEBUG
-            for (int i = bitsLength - 1; i >= 0; i--)
-                Console.Write(bits[i] ? 1 : 0);
-            
-            Console.WriteLine();
-#endif
+            return true;
         }
 
-        public string Reveal(Bitmap image, out byte[] bytes, int bitsPerPixel = 3)
+        public string Reveal(Bitmap image, out byte[] bytes)
         {
             List<string> arr = new List<string>();
             StringBuilder builder = new StringBuilder();
@@ -58,17 +67,13 @@ namespace Steganography.Core
                     var pixel = image.GetPixel(x, y);
                     int[] rgb = new int[] { pixel.R, pixel.G, pixel.B, pixel.A };
 
-                    for (int i = 0; i < bitsPerPixel && iterator < 32; i++) //TODO koncovy bit v hlavicke // && iterator < 32
+                    for (int i = 0; i < (byte)header.ValidPixelChannels && iterator < 32; i++) //TODO koncovy bit v hlavicke // && iterator < 32
                     {
-                        if (rgb[i] % 2 == 1)
-                            builder.Append(1);
-                        else
-                            builder.Append(0);
+                        builder.Append(rgb[i] % 2); // Append 1 if last bit is 1, append 0 otherwise
 
-                        // Split to separate strings of length 8
-                        if (builder.Length == 8)
+                        if (builder.Length == MainForm.BitsPerChar) // Add string to array after length reaches value of MainForm.BitsPerChar 
                         {
-                            arr.Add(builder.ToString().ReverseStr()); // Need to be reversed because of BitArray
+                            arr.Add(builder.ToString());
                             builder.Clear();
                         }
 
@@ -77,9 +82,7 @@ namespace Steganography.Core
                 }
             }
 
-            arr.Reverse(); // Need to be reversed because of BitArray
             var result = arr.ToASCII();
-
             bytes = Encoding.ASCII.GetBytes(result);
             return result;
         }

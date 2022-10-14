@@ -29,7 +29,6 @@ namespace Steganography
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.PreviewPictureBox = new System.Windows.Forms.PictureBox();
             this.MainGroupBox = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -51,7 +50,7 @@ namespace Steganography
             // 
             // PreviewPictureBox
             // 
-            this.PreviewPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("PreviewPictureBox.Image")));
+            this.PreviewPictureBox.Image = global::Steganography.Properties.Resources.drag;
             this.PreviewPictureBox.Location = new System.Drawing.Point(12, 12);
             this.PreviewPictureBox.Name = "PreviewPictureBox";
             this.PreviewPictureBox.Size = new System.Drawing.Size(400, 400);

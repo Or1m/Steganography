@@ -61,6 +61,15 @@ namespace Steganography.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {&quot;MsgType&quot;:0,&quot;ValidPixelChannels&quot;:3,&quot;StepX&quot;:1,&quot;StepY&quot;:1,&quot;FistX&quot;:0,&quot;FirstY&quot;:0,&quot;NumOfBits&quot;:32,&quot;FileName&quot;:null}.
+        /// </summary>
+        internal static string DefaultHeader {
+            get {
+                return ResourceManager.GetString("DefaultHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap drag {

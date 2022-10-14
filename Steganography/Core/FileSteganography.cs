@@ -4,12 +4,12 @@ namespace Steganography.Core
 {
     class FileSteganography : ISteganography
     {
-        public void Hide(Bitmap image, string param, int bitsPerPixel = 3)
+        public bool Hide(string param)
         {
             throw new System.NotImplementedException();
         }
 
-        public string Reveal(Bitmap image, out byte[] bytes, int bitsPerPixel = 3)
+        public string Reveal(Bitmap image, out byte[] bytes)
         {
             throw new System.NotImplementedException();
         }

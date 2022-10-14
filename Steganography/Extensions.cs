@@ -8,30 +8,48 @@ namespace Steganography
 {
     public static class Extensions
     {
-        public static BitArray ToBitArray(this string value)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value">ASCII string message</param>
+        /// <returns>BitArray created from byte representation of each character</returns>
+        public static bool ToBitArray(this string value, out BitArray bits)
         {
             var length = value.Length;
             var bytes = new byte[length];
+            bits = null;
 
             for (int i = 0; i < length; i++)
-                bytes[i] = (byte)value[i];
+            {
+                var byteVal = (byte)value[i];
 
-            Array.Reverse(bytes);
+                if (byteVal < 32 || byteVal > 126)
+                    return false;
 
-            return new BitArray(bytes);
+                bytes[i] = byteVal;
+            }
+
+            bits = new BitArray(bytes);
+            return true;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="list">List of binary strings of length <see cref="MainForm.BitsPerChar"/></param>
+        /// <returns>Decoded ASCII string</returns>
         public static string ToASCII(this List<string> list)
         {
             StringBuilder builder = new StringBuilder();
 
             foreach (var byteStr in list)
             {
-                byte val = Convert.ToByte(byteStr, 2);
+                byte val = Convert.ToByte(byteStr.ReverseStr(), 2); // Need to be reversed first because of endianity
                 builder.Append((char)val);
             }
 
             return builder.ToString();
         }
+        
         public static string ReverseStr(this string str)
         {
             return new string(str.Reverse().ToArray());

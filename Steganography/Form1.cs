@@ -11,11 +11,11 @@ namespace Steganography
 {
     public partial class MainForm : Form
     {
-        private const int bitsPerPixel = 3; // RGB
-        private const int bitsPerChar = 8; // ASCII
-        private const int headerSize = 32;
-        private readonly List<string> allowedImageExtenxsions = new List<string>() { ".jpg", ".png" };
+        public const int BitsPerChar = 8; // ASCII only
 
+        private readonly Header header = Header.FromJSON();
+        private readonly List<string> allowedImageExtenxsions = new List<string>() { ".jpg", ".png" };
+        
         private ISteganography steganography;
         private Bitmap targetImage;
         private int availableBits;
@@ -57,7 +57,7 @@ namespace Steganography
         /// </summary>
         private void RichTextBox_TextChanged(object sender, EventArgs e)
         {
-            var currnet = availableBits - (RichTextBox.Text.Length * bitsPerChar);
+            var currnet = availableBits - (RichTextBox.Text.Length * BitsPerChar);
             BitLabel.Text = currnet.ToString();
 
             if (currnet < 0)
@@ -68,14 +68,14 @@ namespace Steganography
 
         private void HideTextButt_Click(object sender, EventArgs e)
         {
-            steganography = new TextSteganography();
-            steganography.Hide(targetImage, RichTextBox.Text);
+            steganography = new TextSteganography(header, targetImage);
 
-            MessageBox.Show("Text successfully added to image");
+            MessageBox.Show(steganography.Hide(RichTextBox.Text) ?
+                "Text successfully added to image" : "Input not in correct format");
         }
         private void RevealTextButt_Click(object sender, EventArgs e)
         {
-            steganography = new TextSteganography();
+            steganography = new TextSteganography(targetImage);
             var revealedText = steganography.Reveal(targetImage, out _);
 
             Console.WriteLine(revealedText);
@@ -137,7 +137,7 @@ namespace Steganography
         {
             var size = targetImage.Size;
             var pixelCount = size.Width * size.Height;
-            availableBits = (pixelCount * bitsPerPixel) - headerSize;
+            availableBits = (pixelCount * (byte)header.ValidPixelChannels) - Header.Size;
 
             SizeLabel.Text = $"W={size.Width}, H={size.Height} (WxH={pixelCount})";
             BitLabel.Text = availableBits.ToString();

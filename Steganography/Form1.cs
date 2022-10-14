@@ -134,13 +134,17 @@ namespace Steganography
         {
             return allowedImageExtenxsions.Contains(Path.GetExtension(filePath).ToLower());
         }
+        /// <summary>
+        /// Show image size and available bits based on header (settings)
+        /// </summary>
         private void ShowInfo()
         {
             var size = targetImage.Size;
-            var pixelCount = size.Width * size.Height; //TODO - Apply data from header, Y / stepY...
-            availableBits = (pixelCount * (byte)header.ValidPixelChannels) - Header.Size; 
-
-            SizeLabel.Text = $"W={size.Width}, H={size.Height} (WxH={pixelCount})";
+            var rawPixelCount = (size.Width / header.StepX) * (size.Height / header.StepY);
+            var availablePixelCount = rawPixelCount - header.FirstX - (header.FirstY * targetImage.Width);
+            availableBits = availablePixelCount * (byte)header.ValidPixelChannels - Header.Size;
+               
+            SizeLabel.Text = $"W={size.Width}, H={size.Height}";
             BitLabel.Text = availableBits.ToString();
         }
         private void EnableGroup(GroupBox group)

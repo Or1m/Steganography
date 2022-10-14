@@ -34,34 +34,6 @@ namespace Steganography
             return true;
         }
         /// <summary>
-        /// Bit packing function for Header
-        /// </summary>
-        public static bool ToBitArray(this Header header, out BitArray headerBits)
-        {
-            List<byte> bytes = new List<byte>();
-
-            int msgType = (byte)header.MsgType << 4;
-            int channels = (byte)header.ValidPixelChannels;
-            byte msgChannels = (byte)(msgType | channels);
-
-            bytes.Add(msgChannels);
-            Utils.PackInt(bytes, header.NumOfBits);
-            Utils.PackInt(bytes, header.FirstX);
-            Utils.PackInt(bytes, header.FirstY);
-            bytes.Add(header.StepX);
-            bytes.Add(header.StepY);
-
-            StringBuilder builder = new StringBuilder(header.FileName);
-            for (int i = builder.Length; i < Header.MaxNameLength; i++)
-                builder.Append("~");
-
-            var nameBytes = Encoding.ASCII.GetBytes(builder.ToString());
-            bytes.AddRange(nameBytes);
-
-            headerBits = new BitArray(bytes.ToArray());
-            return true;
-        }
-        /// <summary>
         /// </summary>
         /// <param name="list">List of binary strings of length <see cref="MainForm.BitsPerChar"/></param>
         /// <returns>Decoded ASCII string</returns>

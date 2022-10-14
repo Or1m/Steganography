@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
@@ -10,6 +11,8 @@ namespace Steganography.Core
         private readonly Header header;
         private readonly Bitmap image;
 
+        private (int x, int y) headerLasts;
+
         public TextSteganography(Header header, Bitmap image)
         {
             this.header = header;
@@ -18,7 +21,13 @@ namespace Steganography.Core
         public TextSteganography(Bitmap image)
         {
             this.image = image;
-            this.header = Header.FromImage(image);
+
+            headerLasts = ReadHeader(image, out var list);
+
+            if (!Header.FromBinaryList(list, out var header))
+                throw new Exception("Failed to parse header");
+
+            this.header = header;
         }
 
         public bool Hide(string param)
@@ -28,7 +37,7 @@ namespace Steganography.Core
 
             header.NumOfBits = bits.Length;
 
-            if (!header.ToBitArray(out var headerBits)) // Custom extension method to bitpack Header
+            if (!Header.ToBitArray(header, out var headerBits))
                 return false;
 
             var maxLength = headerBits.Length + bits.Length;
@@ -39,24 +48,20 @@ namespace Steganography.Core
 
             return true;
         }
-
         public string Reveal(Bitmap image, out byte[] bytes)
         {
             List<string> arr = new List<string>();
             StringBuilder builder = new StringBuilder();
 
-            var height = image.Height;
-            var width = image.Width;
             int iterator = 0;
-
-            for (int y = 0; y < height; y++)
+            for (int y = headerLasts.y + header.FirstY; y < image.Height; y += header.StepY)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = headerLasts.x + header.FirstX; x < image.Width; x += header.StepX)
                 {
                     var pixel = image.GetPixel(x, y);
                     int[] rgb = new int[] { pixel.R, pixel.G, pixel.B, pixel.A };
 
-                    for (int i = 0; i < (byte)header.ValidPixelChannels && iterator < 32; i++) //TODO koncovy bit v hlavicke // && iterator < 32
+                    for (int i = 0; i < (byte)header.ValidPixelChannels && iterator < header.NumOfBits; i++)
                     {
                         builder.Append(rgb[i] % 2); // Append 1 if last bit is 1, append 0 otherwise
 
@@ -87,10 +92,13 @@ namespace Steganography.Core
                     var pixel = image.GetPixel(x, y);
                     int[] rgb = new int[] { pixel.R, pixel.G, pixel.B, pixel.A }; // Helper array initialized with all color components
                                                                                   // but only up to value of bitsPerPixel are used
-                    for (int i = 0; i < (byte)header.ValidPixelChannels && iterator < headerBits.Length; i++)
+                    for (int i = 0; i < (byte)header.ValidPixelChannels; i++)
                     {
-                        int mask = headerBits[iterator++] ? 255 : 254;
+                        int mask = headerBits[iterator] ? 255 : 254;
                         rgb[i] = rgb[i] & mask; // Set last bit to 0 or 1 by binary AND (&) based on value of bits[iterator++] 
+
+                        if (iterator++ >= headerBits.Length - 1)
+                            return (x, y);
                     }
 
                     Color color = Color.FromArgb(rgb[0], rgb[1], rgb[2]);
@@ -98,7 +106,7 @@ namespace Steganography.Core
                 }
             }
 
-            return (x, y);
+            return (-1, -1);
         }
         private void WriteBits(BitArray bits, int lastX, int lastY, int maxLength, ref int iterator)
         {
@@ -111,7 +119,8 @@ namespace Steganography.Core
                                                                                   // but only up to value of bitsPerPixel are used
                     for (int i = 0; i < (byte)header.ValidPixelChannels && iterator < maxLength; i++)
                     {
-                        int mask = bits[iterator++] ? 255 : 254;
+                        int ii = iterator++;
+                        int mask = bits[ii - Header.Size] ? 255 : 254;
                         rgb[i] = rgb[i] & mask; // Set last bit to 0 or 1 by binary AND (&) based on value of bits[iterator++] 
                     }
 
@@ -119,6 +128,39 @@ namespace Steganography.Core
                     image.SetPixel(x, y, Color.FromArgb(rgb[3], color));
                 }
             }
+        }
+
+        private (int x, int y) ReadHeader(Bitmap image, out List<string> list)
+        {
+            list = new List<string>();
+            StringBuilder builder = new StringBuilder();
+
+            int x = 0, y = 0;
+            int iterator = 0;
+            for (; y < image.Height; y++)
+            {
+                for (; x < image.Width; x++)
+                {
+                    var pixel = image.GetPixel(x, y);
+                    int[] rgb = new int[] { pixel.R, pixel.G, pixel.B, pixel.A };
+
+                    for (int i = 0; i < (byte)Header.HeaderChannels; i++)
+                    {
+                        builder.Append(rgb[i] % 2); // Append 1 if last bit is 1, append 0 otherwise
+
+                        if (builder.Length == MainForm.BitsPerChar) // Add string to array after length reaches value of MainForm.BitsPerChar 
+                        {
+                            list.Add(builder.ToString());
+                            builder.Clear();
+                        }
+
+                        if (iterator++ >= Header.Size)
+                            return (x, y);
+                    }
+                }
+            }
+
+            return (-1, -1);
         }
     }
 }

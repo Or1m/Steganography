@@ -60,16 +60,24 @@ namespace Steganography
         {
             var currnet = availableBits - (RichTextBox.Text.Length * BitsPerChar);
             BitLabel.Text = currnet.ToString();
-
-            if (currnet < 0)
-                BitLabel.ForeColor = Color.Red;
-            else
-                BitLabel.ForeColor = Color.Black;
+            BitLabel.ForeColor = (currnet < 0) ? Color.Red : Color.Black;
         }
 
         private void HideTextButt_Click(object sender, EventArgs e)
         {
             steganography = new TextSteganography(header, targetImage);
+
+            var text = RichTextBox.Text;
+            var neededBits = text.Length * BitsPerChar + Header.Size;
+
+            if (neededBits > availableBits)
+            {
+                var result = MessageBox.Show("Do you want to resize image?", "Image is too small", MessageBoxButtons.YesNo);
+                if (result != DialogResult.Yes)
+                    return;
+
+                Utils.ResizeImage(ref targetImage, neededBits);
+            }
 
             MessageBox.Show(steganography.Hide(RichTextBox.Text) ?
                 "Text successfully added to image" : "Input or header was not in correct format");
@@ -146,6 +154,7 @@ namespace Steganography
                
             SizeLabel.Text = $"W={size.Width}, H={size.Height}";
             BitLabel.Text = availableBits.ToString();
+            BitLabel.ForeColor = (availableBits < 0) ? Color.Red : Color.Black;
         }
         private void EnableGroup(GroupBox group)
         {

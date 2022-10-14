@@ -1,13 +1,18 @@
-﻿using Steganography.Core;
-using System.Drawing;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Steganography
 {
     public static class Utils
     {
-        public static Header ParseHeader(Bitmap image)
+        public static void PackInt(List<byte> bytes, int value)
         {
-            return new Header();
+            bytes.Add((byte)(value >> 24));
+            bytes.Add((byte)(value >> 16));
+            bytes.Add((byte)(value >> 8));
+            bytes.Add((byte)(value >> 0));
         }
     }
 }

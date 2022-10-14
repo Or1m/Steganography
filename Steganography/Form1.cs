@@ -1,4 +1,5 @@
 ﻿using Steganography.Core;
+using Steganography.Properties;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ namespace Steganography
     {
         public const int BitsPerChar = 8; // ASCII only
 
-        private readonly Header header = Header.FromJSON();
+        private readonly Header header = Header.FromJSON(Resources.DefaultHeader); // Load default header/settings 
         private readonly List<string> allowedImageExtenxsions = new List<string>() { ".jpg", ".png" };
         
         private ISteganography steganography;
@@ -71,7 +72,7 @@ namespace Steganography
             steganography = new TextSteganography(header, targetImage);
 
             MessageBox.Show(steganography.Hide(RichTextBox.Text) ?
-                "Text successfully added to image" : "Input not in correct format");
+                "Text successfully added to image" : "Input or header was not in correct format");
         }
         private void RevealTextButt_Click(object sender, EventArgs e)
         {
@@ -136,8 +137,8 @@ namespace Steganography
         private void ShowInfo()
         {
             var size = targetImage.Size;
-            var pixelCount = size.Width * size.Height;
-            availableBits = (pixelCount * (byte)header.ValidPixelChannels) - Header.Size;
+            var pixelCount = size.Width * size.Height; //TODO - Apply data from header, Y / stepY...
+            availableBits = (pixelCount * (byte)header.ValidPixelChannels) - Header.Size; 
 
             SizeLabel.Text = $"W={size.Width}, H={size.Height} (WxH={pixelCount})";
             BitLabel.Text = availableBits.ToString();

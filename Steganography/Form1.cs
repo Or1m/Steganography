@@ -65,8 +65,6 @@ namespace Steganography
 
         private void HideTextButt_Click(object sender, EventArgs e)
         {
-            steganography = new TextSteganography(header, targetImage);
-
             var text = RichTextBox.Text;
             var neededBits = text.Length * BitsPerChar + Header.Size;
 
@@ -76,9 +74,12 @@ namespace Steganography
                 if (result != DialogResult.Yes)
                     return;
 
-                Utils.ResizeImage(ref targetImage, neededBits);
+                Utils.ResizeImage(ref targetImage, neededBits, header);
             }
 
+            ShowInfo();
+
+            steganography = new TextSteganography(header, targetImage);
             MessageBox.Show(steganography.Hide(RichTextBox.Text) ?
                 "Text successfully added to image" : "Input or header was not in correct format");
         }
@@ -147,12 +148,9 @@ namespace Steganography
         /// </summary>
         private void ShowInfo()
         {
-            var size = targetImage.Size;
-            var rawPixelCount = (size.Width / header.StepX) * (size.Height / header.StepY);
-            var availablePixelCount = rawPixelCount - header.FirstX - (header.FirstY * targetImage.Width);
-            availableBits = availablePixelCount * (byte)header.ValidPixelChannels - Header.Size;
+            availableBits = targetImage.AvailableBits(header);
                
-            SizeLabel.Text = $"W={size.Width}, H={size.Height}";
+            SizeLabel.Text = $"W={targetImage.Width}, H={targetImage.Height}";
             BitLabel.Text = availableBits.ToString();
             BitLabel.ForeColor = (availableBits < 0) ? Color.Red : Color.Black;
         }

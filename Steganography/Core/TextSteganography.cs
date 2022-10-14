@@ -84,9 +84,9 @@ namespace Steganography.Core
         private (int x, int y) WriteHeader(BitArray headerBits, ref int iterator)
         {
             int x = 0, y = 0;
-
             for (; y < image.Height; y++)
             {
+                x = 0;
                 for (; x < image.Width; x++)
                 {
                     var pixel = image.GetPixel(x, y);
@@ -139,6 +139,7 @@ namespace Steganography.Core
             int iterator = 0;
             for (; y < image.Height; y++)
             {
+                x = 0;
                 for (; x < image.Width; x++)
                 {
                     var pixel = image.GetPixel(x, y);

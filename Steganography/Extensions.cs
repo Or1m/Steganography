@@ -1,8 +1,8 @@
 ﻿using Steganography.Core;
-using Steganography.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -24,7 +24,7 @@ namespace Steganography
             {
                 var byteVal = (byte)value[i];
 
-                if (byteVal < 32 || byteVal > 126)
+                if (byteVal < 9 || byteVal > 126) // +- valid Alphanumeric chars and some special chars
                     return false;
 
                 bytes[i] = byteVal;
@@ -54,6 +54,14 @@ namespace Steganography
         {
             return new string(str.Reverse().ToArray());
         }
+
+        public static int AvailableBits(this Bitmap image, Header header)
+        {
+            var rawPixelCount = (image.Width / header.StepX) * (image.Height / header.StepY);
+            var availablePixelCount = rawPixelCount - header.FirstX - (header.FirstY * image.Width);
+            return availablePixelCount * (byte)header.ValidPixelChannels - Header.Size;
+        }
+
         // Old string based solution
         //public static string ToBinary(this char value, int bitsPerChar = 8)
         //{

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using Steganography.Core;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Linq;
 
 namespace Steganography
 {
@@ -19,17 +18,18 @@ namespace Steganography
         }
         public static int UnpackInt(List<string> list, ref int idx)
         {
-            byte b1 = (byte)(Convert.ToByte(list[idx++].ReverseStr(), 2) << 24);
-            byte b2 = (byte)(Convert.ToByte(list[idx++].ReverseStr(), 2) << 16);
-            byte b3 = (byte)(Convert.ToByte(list[idx++].ReverseStr(), 2) << 8);
-            byte b4 = (byte)(Convert.ToByte(list[idx++].ReverseStr(), 2) << 0);
+            int b1 = (Convert.ToByte(list[idx++].ReverseStr(), 2) << 24);
+            int b2 = (Convert.ToByte(list[idx++].ReverseStr(), 2) << 16);
+            int b3 = (Convert.ToByte(list[idx++].ReverseStr(), 2) << 8);
+            int b4 = (Convert.ToByte(list[idx++].ReverseStr(), 2) << 0);
 
             return b1 | b2 | b3 | b4;
         }
 
-        public static void ResizeImage(ref Bitmap image, int neededBits)
+        public static void ResizeImage(ref Bitmap image, int neededBits, Header header)
         {
-            image = ResizeImage(image, 2000, 1000);
+            while (image.AvailableBits(header) <= neededBits)
+                ResizeImage(ref image, image.Width * 2, image.Height * 2);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Steganography
         /// <param name="width">The width to resize to.</param>
         /// <param name="height">The height to resize to.</param>
         /// <returns>The resized image.</returns>
-        private static Bitmap ResizeImage(Image image, int width, int height)
+        private static void ResizeImage(ref Bitmap image, int width, int height)
         {
             var rect = new Rectangle(0, 0, width, height);
             var result = new Bitmap(width, height);
@@ -61,7 +61,7 @@ namespace Steganography
                 }
             }
 
-            return result;
+            image = result;
         }
     }
 }

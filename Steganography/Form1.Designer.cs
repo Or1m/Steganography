@@ -99,7 +99,6 @@ namespace Steganography
             // 
             // SettingsButt
             // 
-            this.SettingsButt.Enabled = false;
             this.SettingsButt.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.SettingsButt.Location = new System.Drawing.Point(257, 259);
             this.SettingsButt.Name = "SettingsButt";
@@ -119,6 +118,7 @@ namespace Steganography
             this.CheckButt.TabIndex = 13;
             this.CheckButt.Text = "Check Steganography";
             this.CheckButt.UseVisualStyleBackColor = true;
+            this.CheckButt.Click += new System.EventHandler(this.CheckButt_Click);
             // 
             // label4
             // 

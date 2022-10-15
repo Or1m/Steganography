@@ -135,6 +135,11 @@ namespace Steganography
             Process.Start(Application.StartupPath);
         }
 
+        private void CheckButt_Click(object sender, EventArgs e)
+        {
+
+        }
+
         /// <summary>
         /// Check if filename is valid, save image and open folder
         /// </summary>

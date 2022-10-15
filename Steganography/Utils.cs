@@ -1,6 +1,7 @@
 ﻿using Steganography.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -31,7 +32,6 @@ namespace Steganography
             while (image.AvailableBits(header) <= neededBits)
                 ResizeImage(ref image, image.Width * 2, image.Height * 2);
         }
-
         /// <summary>
         /// Resize the image to the specified width and height.
         /// </summary>

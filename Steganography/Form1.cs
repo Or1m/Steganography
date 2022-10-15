@@ -90,7 +90,22 @@ namespace Steganography
 
             Console.WriteLine(revealedText);
         }
-        
+
+        private void HideFileButt_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                steganography = new FileSteganography(header, targetImage);
+                steganography.Hide(dialog.FileName);
+            }
+        }
+        private void RevealFileButt_Click(object sender, EventArgs e)
+        {
+
+        }
+
         /// <summary>
         /// Check if filename is valid, save image and open folder
         /// </summary>
@@ -108,6 +123,13 @@ namespace Steganography
             
             MessageBox.Show("Saved");
             Process.Start(Application.StartupPath);
+        }
+        private void SettingsButt_Click(object sender, EventArgs e)
+        {
+            var path = Path.Combine(
+                Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName, "Resources\\DefaultHeader.txt");
+
+            Process.Start(path);
         }
         #endregion
 
@@ -167,6 +189,8 @@ namespace Steganography
                 else if (control is TextBox t)
                     t.Enabled = true;
             }
+
+            WarnLabel.Visible = false;
         }
         #endregion
     }

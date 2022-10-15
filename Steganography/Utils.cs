@@ -27,7 +27,7 @@ namespace Steganography
             return b1 | b2 | b3 | b4;
         }
 
-        public static void ResizeImage(ref Bitmap image, int neededBits, Header header)
+        public static void ResizeImage(ref Bitmap image, long neededBits, Header header)
         {
             while (image.AvailableBits(header) <= neededBits)
                 ResizeImage(ref image, image.Width * 2, image.Height * 2);

@@ -68,16 +68,7 @@ namespace Steganography
             var text = RichTextBox.Text;
             var neededBits = text.Length * BitsPerChar + Header.Size;
 
-            if (neededBits > availableBits)
-            {
-                var result = MessageBox.Show("Do you want to resize image?", "Image is too small", MessageBoxButtons.YesNo);
-                if (result != DialogResult.Yes)
-                    return;
-
-                Utils.ResizeImage(ref targetImage, neededBits, header);
-            }
-
-            ShowInfo();
+            CheckImagePrerequisites(neededBits);
 
             steganography = new TextSteganography(header, targetImage);
             MessageBox.Show(steganography.Hide(RichTextBox.Text) ?
@@ -88,22 +79,34 @@ namespace Steganography
             steganography = new TextSteganography(targetImage);
             var revealedText = steganography.Reveal(targetImage, out _);
 
-            Console.WriteLine(revealedText);
+            MessageBox.Show(revealedText, "Revealed text");
         }
 
         private void HideFileButt_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
 
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                steganography = new FileSteganography(header, targetImage);
-                steganography.Hide(dialog.FileName);
-            }
+            var fileName = dialog.FileName;
+            FileInfo info = new FileInfo(fileName);
+
+            CheckImagePrerequisites(info.Length * 8);
+
+            steganography = new FileSteganography(header, targetImage);
+            MessageBox.Show(steganography.Hide(fileName) ?
+            "File successfully added to image" : "Input or header was not in correct format");
         }
         private void RevealFileButt_Click(object sender, EventArgs e)
         {
+            steganography = new FileSteganography(targetImage);
+            var rawFileName = steganography.Reveal(targetImage, out var bytes);
+            var fileName = rawFileName.Substring(0, rawFileName.IndexOf('~'));
 
+            File.WriteAllBytes(fileName, bytes);
+            
+            MessageBox.Show(fileName, "Revealed file name");
+            Process.Start(Application.StartupPath);
         }
 
         /// <summary>
@@ -129,6 +132,7 @@ namespace Steganography
             var path = Path.Combine(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName, "Resources\\DefaultHeader.txt");
 
+            MessageBox.Show("Do not forget restart program after change");
             Process.Start(path);
         }
         #endregion
@@ -191,6 +195,19 @@ namespace Steganography
             }
 
             WarnLabel.Visible = false;
+        }
+
+        private void CheckImagePrerequisites(long neededBits)
+        {
+            if (neededBits <= availableBits)
+                return;
+
+            var result = MessageBox.Show("Do you want to resize image?", "Image is too small", MessageBoxButtons.YesNo);
+            if (result != DialogResult.Yes)
+                return;
+
+            Utils.ResizeImage(ref targetImage, neededBits, header);
+            ShowInfo();
         }
         #endregion
     }

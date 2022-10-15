@@ -1,28 +1,47 @@
-﻿using System.Drawing;
+﻿using Steganography.Enums;
+using System;
+using System.Collections;
+using System.Drawing;
 using System.IO;
 
 namespace Steganography.Core
 {
-    class FileSteganography : ISteganography
+    class FileSteganography : BaseSteganography
     {
-        private readonly Header header;
-        private readonly Bitmap targetImage;
+        public FileSteganography(Header header, Bitmap image) : base(header, image) { }
+        public FileSteganography(Bitmap image) : base(image) { }
 
-        public FileSteganography(Header header, Bitmap targetImage)
-        {
-            this.header = header;
-            this.targetImage = targetImage;
-        }
-
-        public bool Hide(string param)
+        public override bool Hide(string param)
         {
             var bytes = File.ReadAllBytes(param);
+            BitArray bits = new BitArray(bytes);
+
+            header.NumOfBits = bits.Length;
+            header.MsgType = EType.File;
+            header.FileName = Path.GetFileName(param);
+
+            if (!Header.ToBitArray(header, out var headerBits))
+                return false;
+
+            var maxLength = headerBits.Length + bits.Length;
+
+            int iterator = 0;
+            WriteHeader(headerBits, ref iterator);
+            WriteBits(bits, maxLength, ref iterator);
+
             return true;
         }
-
-        public string Reveal(Bitmap image, out byte[] bytes)
+        public override string Reveal(Bitmap image, out byte[] bytes)
         {
-            throw new System.NotImplementedException();
+            var arr = ReadBits(image);
+            int length = arr.Count;
+
+            bytes = new byte[length];
+
+            for (int i = 0; i < length; i++)
+                bytes[i] = Convert.ToByte(arr[i].ReverseStr(), 2);
+
+            return header.FileName;
         }
     }
 }

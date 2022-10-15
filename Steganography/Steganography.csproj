@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\BaseSteganography.cs" />
     <Compile Include="Core\FileSteganography.cs" />
     <Compile Include="Core\Header.cs" />
     <Compile Include="Enums\EType.cs" />

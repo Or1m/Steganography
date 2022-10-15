@@ -150,7 +150,10 @@ namespace Steganography
         /// </summary>
         private void CheckButt_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            SteganographyDetection detection = new SteganographyDetection(targetImage);
+            
+            MessageBox.Show(detection.CheckImage(7) ?
+                "Steganography detected" : "Steganography NOT detected");
         }
 
         /// <summary>

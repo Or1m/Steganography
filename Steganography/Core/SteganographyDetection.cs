@@ -5,14 +5,16 @@ namespace Steganography.Core
 {
     class SteganographyDetection
     {
-        private Bitmap image;
+        private readonly Bitmap image;
 
         public SteganographyDetection(Bitmap image)
         {
             this.image = image;
         }
 
-        public bool CheckImage(int threshold)
+        /// <summary></summary>
+        /// <param name="threshold">Number of neigbours which have to be slightly different from middle pixel</param>
+        public bool IsSteganography(int threshold)
         {
             for (int y = 1; y < image.Height - 1; y++)
             {
@@ -21,7 +23,7 @@ namespace Steganography.Core
                     var pixel = image.GetPixel(x, y);
                     var neigbours = GetNeighbours(x, y);
 
-                    if (CheckNeighbours(pixel, neigbours, threshold))
+                    if (IsSteganographyOnNeighbours(pixel, neigbours, threshold))
                         return true;
                 }
             }
@@ -46,7 +48,7 @@ namespace Steganography.Core
         /// <summary></summary>
         /// <param name="threshold">Number of neigbours which have to be slightly different from middle pixel</param>
         /// <returns>True if detects steganography on neighbours, False otherwise</returns>
-        private bool CheckNeighbours(Color pixel, Color[] neigbours, int threshold)
+        private bool IsSteganographyOnNeighbours(Color pixel, Color[] neigbours, int threshold)
         {
             int diffCount = 0;
             int[] pixelComponents = new int[] { pixel.R, pixel.G, pixel.B, pixel.A };
@@ -80,8 +82,7 @@ namespace Steganography.Core
 
             return diffCount >= threshold;
         }
-
-        public bool AreColorsSimilar(Color c1, Color c2, int tolerance)
+        private bool AreColorsSimilar(Color c1, Color c2, int tolerance)
         {
             return Math.Abs(c1.R - c2.R) < tolerance &&
                    Math.Abs(c1.G - c2.G) < tolerance &&

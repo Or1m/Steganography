@@ -152,7 +152,7 @@ namespace Steganography
         {
             SteganographyDetection detection = new SteganographyDetection(targetImage);
             
-            MessageBox.Show(detection.CheckImage(7) ?
+            MessageBox.Show(detection.IsSteganography(7) ?
                 "Steganography detected" : "Steganography NOT detected");
         }
 

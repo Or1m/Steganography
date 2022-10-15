@@ -67,10 +67,10 @@ namespace Steganography.Core
                     if (pComp == nComp)
                         continue;
 
-                    if (pComp % 2 == nComp % 2)
+                    if (Math.Abs(pComp - nComp) != 1)
                         continue;
 
-                    // Colors ale different 
+                    // Difference of i component between middle and neighbour is exactly 1
                     flag = true;
                 }
 

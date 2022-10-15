@@ -68,7 +68,7 @@ namespace Steganography
             var text = RichTextBox.Text;
             var neededBits = text.Length * BitsPerChar + Header.Size;
 
-            CheckImagePrerequisites(neededBits);
+            CheckPrerequisites(neededBits);
 
             steganography = new TextSteganography(header, targetImage);
             MessageBox.Show(steganography.Hide(RichTextBox.Text) ?
@@ -91,7 +91,7 @@ namespace Steganography
             var fileName = dialog.FileName;
             FileInfo info = new FileInfo(fileName);
 
-            CheckImagePrerequisites(info.Length * 8);
+            CheckPrerequisites(info.Length * 8, fileName);
 
             steganography = new FileSteganography(header, targetImage);
             MessageBox.Show(steganography.Hide(fileName) ?
@@ -196,9 +196,18 @@ namespace Steganography
 
             WarnLabel.Visible = false;
         }
-
-        private void CheckImagePrerequisites(long neededBits)
+        /// <summary>
+        /// Checks if there is enough space in image (if not asks user to resize it) 
+        /// and if lenght of name of image to save is <= Header.MaxNameLength
+        /// </summary>
+        private void CheckPrerequisites(long neededBits, string fileName = "")
         {
+            if (fileName.Length > Header.MaxNameLength)
+            {
+                MessageBox.Show($"File name should be <= {Header.MaxNameLength}");
+                return;
+            }
+
             if (neededBits <= availableBits)
                 return;
 

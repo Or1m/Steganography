@@ -20,10 +20,24 @@ namespace Steganography
         private ISteganography steganography;
         private Bitmap targetImage;
         private int availableBits;
+        private bool typeMissmatch;
 
         public MainForm()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// Called from BaseSteganography if bad type was used to reveal image info
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="header"></param>
+        public void HandleTypeMissmatch(string type, Header header)
+        {
+            typeMissmatch = true;
+
+            MessageBox.Show($"Message of type {header.MsgType} found, but {type} was used. " +
+                $"Try to use {(type == "TextSteganography" ? "FileSteganography" : "TextSteganography")}");
         }
 
         #region UI Events
@@ -76,7 +90,13 @@ namespace Steganography
         }
         private void RevealTextButt_Click(object sender, EventArgs e)
         {
-            steganography = new TextSteganography(targetImage);
+            typeMissmatch = false;
+
+            steganography = new TextSteganography(targetImage, this);
+
+            if (typeMissmatch)
+                return;
+
             var revealedText = steganography.Reveal(targetImage, out _);
 
             MessageBox.Show(revealedText, "Revealed text");
@@ -99,7 +119,13 @@ namespace Steganography
         }
         private void RevealFileButt_Click(object sender, EventArgs e)
         {
-            steganography = new FileSteganography(targetImage);
+            typeMissmatch = false;
+
+            steganography = new FileSteganography(targetImage, this);
+
+            if (typeMissmatch)
+                return;
+
             var rawFileName = steganography.Reveal(targetImage, out var bytes);
             var fileName = rawFileName.Substring(0, rawFileName.IndexOf('~'));
 

@@ -8,8 +8,11 @@ namespace Steganography.Core
 {
     class FileSteganography : BaseSteganography
     {
+        public override EType AllowedMsgType => EType.File;
+
+
         public FileSteganography(Header header, Bitmap image) : base(header, image) { }
-        public FileSteganography(Bitmap image) : base(image) { }
+        public FileSteganography(Bitmap image, MainForm mainForm) : base(image, mainForm) { }
 
         public override bool Hide(string param)
         {

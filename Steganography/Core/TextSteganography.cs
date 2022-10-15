@@ -1,12 +1,16 @@
-﻿using System.Drawing;
+﻿using Steganography.Enums;
+using System.Drawing;
 using System.Text;
 
 namespace Steganography.Core
 {
     class TextSteganography : BaseSteganography
     {
+        public override EType AllowedMsgType => EType.Text;
+
+
         public TextSteganography(Header header, Bitmap image) : base(header, image) { }
-        public TextSteganography(Bitmap image) : base(image) { }
+        public TextSteganography(Bitmap image, MainForm mainForm) : base(image, mainForm) { }
 
         public override bool Hide(string param)
         {
@@ -23,12 +27,6 @@ namespace Steganography.Core
             int iterator = 0;
             WriteHeader(headerBits, ref iterator);
             WriteBits(bits, maxLength, ref iterator);
-
-            foreach (bool item in headerBits) //TODO
-            {
-                System.Console.Write(item ? 1 : 0);
-            }
-            System.Console.WriteLine();
 
             return true;
         }

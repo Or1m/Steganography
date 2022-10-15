@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Steganography.Enums;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Steganography.Core
 {
@@ -13,13 +15,15 @@ namespace Steganography.Core
 
         protected (int x, int y) headerEndCoords;
 
+        public abstract EType AllowedMsgType { get; }
+
 
         public BaseSteganography(Header header, Bitmap image) // Constructor for hide
         {
             this.header = header;
             this.image = image;
         }
-        public BaseSteganography(Bitmap image) // Constructor for reveal
+        public BaseSteganography(Bitmap image, MainForm mainForm) // Constructor for reveal
         {
             this.image = image;
 
@@ -30,12 +34,8 @@ namespace Steganography.Core
 
             this.header = header;
 
-            //TODO
-            foreach (var item in list)
-            {
-                Console.Write(item);
-            }
-            Console.WriteLine();
+            if (AllowedMsgType != header.MsgType)
+                mainForm.HandleTypeMissmatch(GetType().Name, header);
         }
         
         protected void WriteHeader(BitArray headerBits, ref int iterator)

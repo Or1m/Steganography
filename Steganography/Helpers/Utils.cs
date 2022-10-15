@@ -1,7 +1,6 @@
 ﻿using Steganography.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -10,6 +9,9 @@ namespace Steganography
 {
     public static class Utils
     {
+        /// <summary>
+        /// Pack integer into 4 bytes and add it to list
+        /// </summary>
         public static void PackInt(List<byte> bytes, int value)
         {
             bytes.Add((byte)(value >> 24));
@@ -17,6 +19,9 @@ namespace Steganography
             bytes.Add((byte)(value >> 8));
             bytes.Add((byte)(value >> 0));
         }
+        /// <summary>
+        /// Get four bytes from list and save it to one integer
+        /// </summary>
         public static int UnpackInt(List<string> list, ref int idx)
         {
             int b1 = (Convert.ToByte(list[idx++].ReverseStr(), 2) << 24);
@@ -27,6 +32,9 @@ namespace Steganography
             return b1 | b2 | b3 | b4;
         }
 
+        /// <summary>
+        /// Keep resizing image until it can hold all the bits
+        /// </summary>
         public static void ResizeImage(ref Bitmap image, long neededBits, Header header)
         {
             while (image.AvailableBits(header) <= neededBits)
@@ -35,10 +43,6 @@ namespace Steganography
         /// <summary>
         /// Resize the image to the specified width and height.
         /// </summary>
-        /// <param name="image">The image to resize.</param>
-        /// <param name="width">The width to resize to.</param>
-        /// <param name="height">The height to resize to.</param>
-        /// <returns>The resized image.</returns>
         private static void ResizeImage(ref Bitmap image, int width, int height)
         {
             var rect = new Rectangle(0, 0, width, height);

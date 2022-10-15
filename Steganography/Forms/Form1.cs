@@ -12,15 +12,15 @@ namespace Steganography
 {
     public partial class MainForm : Form
     {
-        public const int BitsPerChar = 8; // ASCII only
-
         private readonly Header header = Header.FromJSON(Resources.DefaultHeader); // Load default header/settings 
         private readonly List<string> allowedImageExtenxsions = new List<string>() { ".jpg", ".png" };
         
         private ISteganography steganography;
         private Bitmap targetImage;
-        private int availableBits;
+
         private bool typeMissmatch;
+        private int availableBits;
+
 
         public MainForm()
         {
@@ -30,8 +30,6 @@ namespace Steganography
         /// <summary>
         /// Called from BaseSteganography if bad type was used to reveal image info
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="header"></param>
         public void HandleTypeMissmatch(string type, Header header)
         {
             typeMissmatch = true;
@@ -42,11 +40,11 @@ namespace Steganography
 
         #region UI Events
         /// <summary>
-        /// Copy dragged image and save it to field targetImage if valid
+        /// Copy dragged image and save it to field targetImage if its valid
         /// </summary>
         private void MainForm_DragEnter(object sender, DragEventArgs e)
         {
-            if (HasValidPath(e, out string path))
+            if (IsDraggedFileValid(e, out string path))
             {
                 targetImage = new Bitmap(path);
                 e.Effect = DragDropEffects.Copy;
@@ -67,41 +65,50 @@ namespace Steganography
             ShowInfo();
             EnableGroup(MainGroupBox);
         }
+        
         /// <summary>
-        /// Actualize count of available bits to save and show it to user as he types
+        /// Actualize count of available bits when text is changed
         /// </summary>
         private void RichTextBox_TextChanged(object sender, EventArgs e)
         {
-            var currnet = availableBits - (RichTextBox.Text.Length * BitsPerChar);
+            var currnet = availableBits - (RichTextBox.Text.Length * Header.BitsPerChar);
             BitLabel.Text = currnet.ToString();
             BitLabel.ForeColor = (currnet < 0) ? Color.Red : Color.Black;
         }
 
+        /// <summary>
+        /// Create instance of TextSteganography and if input is valid hide text message to image
+        /// </summary>
         private void HideTextButt_Click(object sender, EventArgs e)
         {
             var text = RichTextBox.Text;
-            var neededBits = text.Length * BitsPerChar + Header.Size;
+            var neededBits = text.Length * Header.BitsPerChar + Header.Size;
 
-            CheckPrerequisites(neededBits);
+            if (!CheckPrerequisites(neededBits))
+                return;
 
             steganography = new TextSteganography(header, targetImage);
             MessageBox.Show(steganography.Hide(RichTextBox.Text) ?
                 "Text successfully added to image" : "Input or header was not in correct format");
         }
+        /// <summary>
+        /// Create instance of TextSteganography and if message is text show it to user
+        /// </summary>
         private void RevealTextButt_Click(object sender, EventArgs e)
         {
             typeMissmatch = false;
-
             steganography = new TextSteganography(targetImage, this);
 
             if (typeMissmatch)
                 return;
 
-            var revealedText = steganography.Reveal(targetImage, out _);
-
-            MessageBox.Show(revealedText, "Revealed text");
+            MessageBox.Show(steganography.Reveal(targetImage, out _), "Revealed text");
         }
 
+        /// <summary>
+        /// Let user pick file, check if its file name is valid and if source image is big enough, 
+        /// create instance of FileSteganography and hide file in image
+        /// </summary>
         private void HideFileButt_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -111,16 +118,19 @@ namespace Steganography
             var fileName = dialog.FileName;
             FileInfo info = new FileInfo(fileName);
 
-            CheckPrerequisites(info.Length * 8, fileName);
+            if (!CheckPrerequisites(info.Length * 8, fileName))
+                return;
 
             steganography = new FileSteganography(header, targetImage);
             MessageBox.Show(steganography.Hide(fileName) ?
-            "File successfully added to image" : "Input or header was not in correct format");
+                "File successfully added to image" : "Input or header was not in correct format");
         }
+        /// <summary>
+        /// Get bytes from image and save it to file
+        /// </summary>
         private void RevealFileButt_Click(object sender, EventArgs e)
         {
             typeMissmatch = false;
-
             steganography = new FileSteganography(targetImage, this);
 
             if (typeMissmatch)
@@ -135,9 +145,12 @@ namespace Steganography
             Process.Start(Application.StartupPath);
         }
 
+        /// <summary>
+        /// Check if image contains steganography
+        /// </summary>
         private void CheckButt_Click(object sender, EventArgs e)
         {
-
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -153,7 +166,7 @@ namespace Steganography
                 return;
             }
 
-            targetImage.Save(FileNameBox.Text, ImageFormat.Png);
+            targetImage.Save(filename, ImageFormat.Png);
             
             MessageBox.Show("Saved");
             Process.Start(Application.StartupPath);
@@ -161,7 +174,7 @@ namespace Steganography
         private void SettingsButt_Click(object sender, EventArgs e)
         {
             var path = Path.Combine(
-                Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName, "Resources\\DefaultHeader.txt");
+                Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName, Header.DefaultHeaderPath);
 
             MessageBox.Show("Do not forget restart program after change");
             Process.Start(path);
@@ -172,7 +185,7 @@ namespace Steganography
         /// <summary>
         /// Validate dropped file
         /// </summary>
-        private bool HasValidPath(DragEventArgs e, out string filePath)
+        private bool IsDraggedFileValid(DragEventArgs e, out string filePath)
         {
             filePath = string.Empty;
 
@@ -200,6 +213,7 @@ namespace Steganography
         {
             return allowedImageExtenxsions.Contains(Path.GetExtension(filePath).ToLower());
         }
+        
         /// <summary>
         /// Show image size and available bits based on header (settings)
         /// </summary>
@@ -211,6 +225,9 @@ namespace Steganography
             BitLabel.Text = availableBits.ToString();
             BitLabel.ForeColor = (availableBits < 0) ? Color.Red : Color.Black;
         }
+        /// <summary>
+        /// Enable controls after valid image is drag & dropped
+        /// </summary>
         private void EnableGroup(GroupBox group)
         {
             var controls = group.Controls;
@@ -227,27 +244,30 @@ namespace Steganography
 
             WarnLabel.Visible = false;
         }
+
         /// <summary>
         /// Checks if there is enough space in image (if not asks user to resize it) 
-        /// and if lenght of name of image to save is <= Header.MaxNameLength
+        /// and if length of name of image to save is <= Header.MaxNameLength
         /// </summary>
-        private void CheckPrerequisites(long neededBits, string fileName = "")
+        private bool CheckPrerequisites(long neededBits, string fileName = "")
         {
             if (fileName.Length > Header.MaxNameLength)
             {
                 MessageBox.Show($"File name should be <= {Header.MaxNameLength}");
-                return;
+                return false;
             }
 
             if (neededBits <= availableBits)
-                return;
+                return true;
 
             var result = MessageBox.Show("Do you want to resize image?", "Image is too small", MessageBoxButtons.YesNo);
             if (result != DialogResult.Yes)
-                return;
+                return false;
 
             Utils.ResizeImage(ref targetImage, neededBits, header);
             ShowInfo();
+
+            return true;
         }
         #endregion
     }

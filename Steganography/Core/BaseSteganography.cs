@@ -4,15 +4,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
-using System.Windows.Forms;
 
 namespace Steganography.Core
 {
     abstract class BaseSteganography : ISteganography
     {
-        protected readonly Header header;
         protected readonly Bitmap image;
+        protected readonly Header header;
 
+        protected BitArray bits;
         protected (int x, int y) headerEndCoords;
 
         public abstract EType AllowedMsgType { get; }
@@ -37,14 +37,32 @@ namespace Steganography.Core
             if (AllowedMsgType != header.MsgType)
                 mainForm.HandleTypeMissmatch(GetType().Name, header);
         }
-        
+
+        public bool Hide(string param)
+        {
+            if (!InternalHide(param))
+                return false;
+
+            if (!Header.ToBitArray(header, out var headerBits))
+                return false;
+
+            var maxLength = headerBits.Length + bits.Length;
+
+            int iterator = 0;
+            WriteHeader(headerBits, ref iterator);
+            WriteBits(maxLength, ref iterator);
+
+            return true;
+        }
+        public abstract string Reveal(Bitmap image, out byte[] bytes);
+
         protected void WriteHeader(BitArray headerBits, ref int iterator)
         {
-            int y = 0;
-            for (; y < image.Height; y++)
+            headerEndCoords = (-1, -1);
+
+            for (int y = 0; y < image.Height; y++)
             {
-                int x = 0;
-                for (; x < image.Width; x++)
+                for (int x = 0; x < image.Width; x++)
                 {
                     var pixel = image.GetPixel(x, y);
                     int[] rgb = new int[] { pixel.R, pixel.G, pixel.B, pixel.A }; // Helper array initialized with all color components
@@ -54,41 +72,38 @@ namespace Steganography.Core
                         rgb[i] = rgb[i] & 0b11111110; // Set all LSBs to 0
 
                         if (headerBits[iterator])
-                            rgb[i] = rgb[i] | 0b00000001; // Set LSB to 1 if bit is 1
+                            rgb[i] = rgb[i] | 0b00000001; // Set LSB to 1 if current bit is 1
 
-                        if (iterator++ >= headerBits.Length - 1)
+                        if (iterator++ >= headerBits.Length - 1) // Header was written, save coords and return
                         {
                             headerEndCoords = (x, y);
                             return;
                         }
                     }
 
-                    Color color = Color.FromArgb(rgb[0], rgb[1], rgb[2]);
-                    image.SetPixel(x, y, Color.FromArgb(rgb[3], color));
+                    ApplyColorToPixel(y, x, rgb);
                 }
             }
-
-            headerEndCoords = (-1, -1);
         }
         protected void ReadHeader(Bitmap image, out List<string> list)
         {
+            headerEndCoords = (-1, -1);
             list = new List<string>();
             StringBuilder builder = new StringBuilder();
 
-            int y = 0, iterator = 0;
-            for (; y < image.Height; y++)
+            int iterator = 0;
+            for (int y = 0; y < image.Height; y++)
             {
-                int x = 0;
-                for (; x < image.Width; x++)
+                for (int x = 0; x < image.Width; x++)
                 {
                     var pixel = image.GetPixel(x, y);
                     int[] rgb = new int[] { pixel.R, pixel.G, pixel.B, pixel.A };
 
-                    for (int i = 0; i < (byte)Header.HeaderChannels; i++)
+                    for (int i = 0; i < (byte)Header.HeaderChannels; i++) // Header always uses RGB
                     {
                         builder.Append(rgb[i] % 2); // Append 1 if last bit is 1, append 0 otherwise
 
-                        if (builder.Length == MainForm.BitsPerChar) // Add string to array after length reaches value of MainForm.BitsPerChar 
+                        if (builder.Length == Header.BitsPerChar) // Add string to array after length reaches value of MainForm.BitsPerChar 
                         {
                             list.Add(builder.ToString());
                             builder.Clear();
@@ -102,14 +117,12 @@ namespace Steganography.Core
                     }
                 }
             }
-
-            headerEndCoords = (-1, -1);
         }
 
-        public abstract bool Hide(string param);
-        public abstract string Reveal(Bitmap image, out byte[] bytes);
-
-        protected void WriteBits(BitArray bits, int maxLength, ref int iterator)
+        /// <summary>
+        /// Write bits of message in form found in header
+        /// </summary>
+        protected void WriteBits(int maxLength, ref int iterator)
         {
             for (int y = headerEndCoords.y + header.FirstY; y < image.Height; y += header.StepY)
             {
@@ -121,17 +134,19 @@ namespace Steganography.Core
                     for (int i = 0; i < (byte)header.ValidPixelChannels && iterator < maxLength; i++)
                     {
                         int ii = iterator++;
-                        rgb[i] = rgb[i] & 0b11111110;
+                        rgb[i] = rgb[i] & 0b11111110; // Set LSB to 0
 
                         if (bits[ii - Header.Size])
-                            rgb[i] = rgb[i] | 0b00000001; // Set last bit to 0 or 1 by binary AND (&) based on value of bits[iterator++] 
+                            rgb[i] = rgb[i] | 0b00000001; // Set LSB to 1 if current bit is 1
                     }
 
-                    Color color = Color.FromArgb(rgb[0], rgb[1], rgb[2]);
-                    image.SetPixel(x, y, Color.FromArgb(rgb[3], color));
+                    ApplyColorToPixel(y, x, rgb);
                 }
             }
         }
+        /// <summary>
+        /// Read bits of message in form found in header
+        /// </summary>
         protected List<string> ReadBits(Bitmap image)
         {
             List<string> arr = new List<string>();
@@ -149,7 +164,7 @@ namespace Steganography.Core
                     {
                         builder.Append(rgb[i] % 2); // Append 1 if last bit is 1, append 0 otherwise
 
-                        if (builder.Length == MainForm.BitsPerChar) // Add string to array after length reaches value of MainForm.BitsPerChar 
+                        if (builder.Length == Header.BitsPerChar) // Add string to array after length reaches value of MainForm.BitsPerChar 
                         {
                             arr.Add(builder.ToString());
                             builder.Clear();
@@ -161,6 +176,14 @@ namespace Steganography.Core
             }
 
             return arr;
+        }
+        
+        protected abstract bool InternalHide(string param);
+
+        private void ApplyColorToPixel(int y, int x, int[] rgb)
+        {
+            Color color = Color.FromArgb(rgb[0], rgb[1], rgb[2]);
+            image.SetPixel(x, y, Color.FromArgb(rgb[3], color));
         }
     }
 }

@@ -10,8 +10,7 @@ namespace Steganography
 {
     public static class Extensions
     {
-        /// <summary>
-        /// </summary>
+        /// <summary></summary>
         /// <param name="value">ASCII string message</param>
         /// <returns>BitArray created from byte representation of each character</returns>
         public static bool ToBitArray(this string value, out BitArray bits)
@@ -24,7 +23,7 @@ namespace Steganography
             {
                 var byteVal = (byte)value[i];
 
-                if (byteVal < 9 || byteVal > 126) // +- valid Alphanumeric chars and some special chars
+                if (byteVal < 9 || byteVal > 126) // +- all valid ASCII chars which can be used in message
                     return false;
 
                 bytes[i] = byteVal;
@@ -33,8 +32,7 @@ namespace Steganography
             bits = new BitArray(bytes);
             return true;
         }
-        /// <summary>
-        /// </summary>
+        /// <summary></summary>
         /// <param name="list">List of binary strings of length <see cref="MainForm.BitsPerChar"/></param>
         /// <returns>Decoded ASCII string</returns>
         public static string ToASCII(this List<string> list)
@@ -55,6 +53,10 @@ namespace Steganography
             return new string(str.Reverse().ToArray());
         }
 
+        /// <summary></summary>
+        /// <returns>
+        /// Number of available bits in image after subtracting Header size and all gaps between pixels and rows
+        /// </returns>
         public static int AvailableBits(this Bitmap image, Header header)
         {
             var rawPixelCount = (image.Width / header.StepX) * (image.Height / header.StepY);

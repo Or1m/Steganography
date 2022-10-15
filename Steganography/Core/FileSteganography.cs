@@ -14,26 +14,6 @@ namespace Steganography.Core
         public FileSteganography(Header header, Bitmap image) : base(header, image) { }
         public FileSteganography(Bitmap image, MainForm mainForm) : base(image, mainForm) { }
 
-        public override bool Hide(string param)
-        {
-            var bytes = File.ReadAllBytes(param);
-            BitArray bits = new BitArray(bytes);
-
-            header.NumOfBits = bits.Length;
-            header.MsgType = EType.File;
-            header.FileName = Path.GetFileName(param);
-
-            if (!Header.ToBitArray(header, out var headerBits))
-                return false;
-
-            var maxLength = headerBits.Length + bits.Length;
-
-            int iterator = 0;
-            WriteHeader(headerBits, ref iterator);
-            WriteBits(bits, maxLength, ref iterator);
-
-            return true;
-        }
         public override string Reveal(Bitmap image, out byte[] bytes)
         {
             var arr = ReadBits(image);
@@ -45,6 +25,21 @@ namespace Steganography.Core
                 bytes[i] = Convert.ToByte(arr[i].ReverseStr(), 2);
 
             return header.FileName;
+        }
+
+        /// <summary>
+        /// Called before body of public method Hide to set right header parameters
+        /// </summary>
+        protected override bool InternalHide(string param)
+        {
+            var bytes = File.ReadAllBytes(param);
+            bits = new BitArray(bytes);
+
+            header.NumOfBits = bits.Length;
+            header.MsgType = AllowedMsgType;
+            header.FileName = Path.GetFileName(param);
+
+            return true;
         }
     }
 }

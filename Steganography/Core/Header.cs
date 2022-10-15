@@ -3,7 +3,6 @@ using Steganography.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -12,8 +11,11 @@ namespace Steganography.Core
     public class Header
     {
         public const EValidPixelChannels HeaderChannels = EValidPixelChannels.RGB;
-        public const int MaxNameLength = 64;
-        public const int Size = 8 + 16 + 96 + 512;
+        public const string DefaultHeaderPath           = "Resources\\DefaultHeader.txt";
+
+        public const int MaxNameLength  = 64;
+        public const int BitsPerChar    = 8; // ASCII
+        public const int Size           = 8 + 16 + 96 + 512;
 
         public EType MsgType { get; set; } // 4 bits, because of packing to byte with ValidPixelChannels
         public EValidPixelChannels ValidPixelChannels { get; set; } // 4 bits
@@ -25,14 +27,14 @@ namespace Steganography.Core
         public byte StepX { get; set; } // 8 bits
         public byte StepY { get; set; } // 8 bits
 
-        /// Only valid for <see cref="EType.File"/>
+        /// Only used for <see cref="EType.File"/>
         public string FileName { get; set; } // MaxNameLength * 8 bits
+
 
         public static Header FromJSON(string json)
         {
             return JsonConvert.DeserializeObject<Header>(json);
         }
-
         /// <summary>
         /// Bit packing function for Header
         /// </summary>
@@ -51,8 +53,8 @@ namespace Steganography.Core
             bytes.Add(header.StepX);
             bytes.Add(header.StepY);
 
-            StringBuilder builder = new StringBuilder(header.FileName);
-            for (int i = builder.Length; i < Header.MaxNameLength; i++)
+            StringBuilder builder = new StringBuilder(header.FileName); // Append ~ for all remaining header bytes
+            for (int i = builder.Length; i < MaxNameLength; i++)
                 builder.Append("~");
 
             var nameBytes = Encoding.ASCII.GetBytes(builder.ToString());
@@ -80,7 +82,7 @@ namespace Steganography.Core
             header.StepY = Convert.ToByte(list[idx++].ReverseStr(), 2);
 
             header.FileName = Encoding.Default.GetString(
-                list.Select(x => Convert.ToByte(x.ReverseStr(), 2)).ToArray(), idx, Header.MaxNameLength);
+                list.Select(x => Convert.ToByte(x.ReverseStr(), 2)).ToArray(), idx, MaxNameLength);
 
             return true;
         }

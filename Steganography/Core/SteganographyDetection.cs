@@ -14,7 +14,7 @@ namespace Steganography.Core
 
         /// <summary></summary>
         /// <param name="threshold">Number of neigbours which have to be slightly different from middle pixel</param>
-        public bool IsSteganography(int threshold)
+        public bool IsSteganography(int threshold = 7)
         {
             for (int y = 1; y < image.Height - 1; y++)
             {

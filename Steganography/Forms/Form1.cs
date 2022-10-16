@@ -18,7 +18,7 @@ namespace Steganography
         private ISteganography steganography;
         private Bitmap targetImage;
 
-        private bool typeMissmatch;
+        private bool typeMissmatch, headerInvalid;
         private int availableBits;
 
 
@@ -36,6 +36,11 @@ namespace Steganography
 
             MessageBox.Show($"Message of type {header.MsgType} found, but {type} was used. " +
                 $"Try to use {(type == "TextSteganography" ? "FileSteganography" : "TextSteganography")}");
+        }
+        public void HandleHeaderNotValid()
+        {
+            headerInvalid = true;
+            MessageBox.Show("Header not valid or image does not contain any");
         }
 
         #region UI Events
@@ -96,10 +101,10 @@ namespace Steganography
         /// </summary>
         private void RevealTextButt_Click(object sender, EventArgs e)
         {
-            typeMissmatch = false;
+            typeMissmatch = headerInvalid = false;
             steganography = new TextSteganography(targetImage, this);
 
-            if (typeMissmatch)
+            if (typeMissmatch || headerInvalid)
                 return;
 
             MessageBox.Show(steganography.Reveal(targetImage, out _), "Revealed text");
@@ -130,10 +135,10 @@ namespace Steganography
         /// </summary>
         private void RevealFileButt_Click(object sender, EventArgs e)
         {
-            typeMissmatch = false;
+            typeMissmatch = headerInvalid = false;
             steganography = new FileSteganography(targetImage, this);
 
-            if (typeMissmatch)
+            if (typeMissmatch || headerInvalid)
                 return;
 
             var rawFileName = steganography.Reveal(targetImage, out var bytes);
@@ -152,7 +157,7 @@ namespace Steganography
         {
             SteganographyDetection detection = new SteganographyDetection(targetImage);
             
-            MessageBox.Show(detection.IsSteganography(7) ?
+            MessageBox.Show(detection.IsSteganography() ?
                 "Steganography detected" : "Steganography NOT detected");
         }
 

@@ -32,6 +32,12 @@ namespace Steganography.Core
             if (!Header.FromBinaryList(list, out var header))
                 throw new Exception("Failed to parse header");
 
+            if (!header.IsVaild())
+            {
+                mainForm.HandleHeaderNotValid();
+                return;
+            }
+
             this.header = header;
 
             if (AllowedMsgType != header.MsgType)

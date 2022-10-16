@@ -1,4 +1,5 @@
 ﻿using Steganography.Core;
+using Steganography.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -62,6 +63,16 @@ namespace Steganography
             var rawPixelCount = (image.Width / header.StepX) * (image.Height / header.StepY);
             var availablePixelCount = rawPixelCount - header.FirstX - (header.FirstY * image.Width);
             return availablePixelCount * (byte)header.ValidPixelChannels - Header.Size;
+        }
+
+        public static bool IsVaild(this Header header)
+        {
+            return
+                header.FirstX >= 0 &&
+                header.FirstY >= 0 &&
+                (header.MsgType == EType.File || header.MsgType == EType.Text) &&
+                header.ValidPixelChannels <= EValidPixelChannels.RGBA &&
+                header.ValidPixelChannels >= EValidPixelChannels.R;
         }
     }
 }
